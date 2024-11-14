@@ -12,16 +12,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import br.fernandapcaetano.gerenciadordeproduto.Model.Produto;
+import br.fernandapcaetano.gerenciadordeproduto.Service.ProdutoService;
 
 @Controller
 @RequestMapping("/produtos")
 public class ProdutoController {
     @Autowired
-    private ProdutoRepository produtoRepository;
+    private ProdutoService service;
 
     @GetMapping
     public String listarProdutos(Model model) {
-        List<Produto> produtos = produtoRepository.findAll();
+        List<Produto> produtos = service.findAll();
         model.addAttribute("produtos", produtos);
         return "produtos/listar";
     }
@@ -34,13 +35,13 @@ public class ProdutoController {
 
     @PostMapping("/novo")
     public String criarProduto(@ModelAttribute Produto produto) {
-        produtoRepository.save(produto);
+        service.save(produto);
         return "redirect:/produtos";
     }
 
     @GetMapping("/editar/{id}")
     public String editarProdutoForm(@PathVariable("id") Long id, Model model) {
-        Produto produto = produtoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+        Produto produto = service.findById(id);
         model.addAttribute("produto", produto);
         return "produtos/editar";
     }
@@ -48,14 +49,14 @@ public class ProdutoController {
     @PostMapping("/editar/{id}")
     public String editarProduto(@PathVariable("id") Long id, @ModelAttribute Produto produto) {
         produto.setId(id);
-        produtoRepository.save(produto);
+        service.save(produto);
         return "redirect:/produtos";
     }
 
     @GetMapping("/excluir/{id}")
     public String excluirProduto(@PathVariable("id") Long id) {
-        Produto produto = produtoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
-        produtoRepository.delete(produto);
+        Produto produto = service.findById(id).orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+        service.delete(produto);
         return "redirect:/produtos";
     }
 }
